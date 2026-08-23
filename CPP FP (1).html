@@ -1,0 +1,2017 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Мобильный Конструктор Превью PRO</title>
+    <style>
+        :root {
+            --bg-dark: #0b0d17;
+            --bg-panel: rgba(18, 21, 36, 0.85);
+            --accent: #3b82f6;
+            --accent-glow: #60a5fa;
+            --accent-green: #00b894;
+            --accent-warning: #fdcb6e;
+            --text-main: #ffffff;
+            --text-secondary: #a0a8c0;
+            --border: rgba(255, 255, 255, 0.12);
+            --shadow: rgba(0, 0, 0, 0.55);
+            --radius: 16px;
+            --sidebar-height: 420px;
+            --topbar-height: 56px;
+            --canvas-w: 405px;
+            --canvas-h: 720px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body {
+            background: linear-gradient(135deg, #0b0d17 0%, #141a2e 50%, #0d1117 100%);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            height: 100dvh;
+            overflow: hidden;
+            touch-action: none;
+            background-attachment: fixed;
+        }
+
+        .top-bar {
+            height: var(--topbar-height);
+            background: var(--bg-panel);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 20;
+            flex-shrink: 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .top-bar-left {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: nowrap;
+        }
+
+        .icon-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border);
+            color: #fff;
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .icon-btn:active { background: rgba(255, 255, 255, 0.15); transform: scale(0.92); }
+        .icon-btn:disabled { opacity: 0.3; }
+
+        .project-name-input {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            outline: none;
+            width: 90px;
+            font-weight: 600;
+            height: 38px;
+            backdrop-filter: blur(6px);
+            transition: border 0.2s;
+        }
+
+        .project-name-input:focus { border-color: var(--accent); }
+
+        .burger-menu {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+
+        .burger-line {
+            width: 16px;
+            height: 2px;
+            background: #fff;
+            border-radius: 2px;
+        }
+
+        .format-toggle {
+            display: flex;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            height: 38px;
+            flex-shrink: 0;
+        }
+
+        .format-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 0 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .format-btn.active {
+            background: linear-gradient(135deg, var(--accent), var(--accent-glow));
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(59, 130, 246, 0.4);
+        }
+
+        .dropdown-menu {
+            position: fixed;
+            top: calc(var(--topbar-height) + 8px);
+            right: 14px;
+            background: var(--bg-panel);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 100;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            animation: slideIn 0.3s ease;
+            width: 210px;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .dropdown-menu.hidden { display: none; }
+
+        .menu-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid transparent;
+            color: #fff;
+            padding: 12px 14px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .menu-item:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--border); }
+        .menu-item:active { background: rgba(255, 255, 255, 0.15); }
+        .menu-item.danger { color: #ff6b6b; }
+
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .workspace {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(ellipse at center, rgba(20, 30, 60, 0.5) 0%, transparent 60%), linear-gradient(135deg, #0b0d17 0%, #121a2e 50%, #08090f 100%);
+            padding: 12px;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .canvas-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            width: var(--canvas-w);
+            height: var(--canvas-h);
+            transform-origin: center center;
+            flex-shrink: 0;
+        }
+
+        .canvas {
+            width: 100%;
+            height: 100%;
+            background: #111;
+            position: relative;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9);
+            overflow: hidden;
+            border: 1px solid #2a2a3e;
+            border-radius: 16px;
+        }
+
+        .sidebar {
+            flex-shrink: 0;
+            background: var(--bg-panel);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-top: 1px solid var(--border);
+            z-index: 30;
+            height: var(--sidebar-height);
+            border-radius: 24px 24px 0 0;
+            box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 320px;
+            max-height: 65dvh;
+        }
+
+        .sidebar-tab-handle {
+            width: 48px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            margin: 12px auto 8px;
+            cursor: grab;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .sidebar-tabs {
+            display: flex;
+            padding: 0 16px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 24px 24px 0 0;
+            flex-shrink: 0;
+            gap: 4px;
+        }
+
+        .sidebar-tab {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 12px 4px 10px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            text-align: center;
+            letter-spacing: 0.3px;
+        }
+
+        .sidebar-tab.active {
+            color: #fff;
+            border-bottom-color: var(--accent);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 16px;
+            -webkit-overflow-scrolling: touch;
+            min-height: 0;
+        }
+
+        .sidebar-content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .sidebar-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        .panel-section {
+            padding: 4px 0;
+        }
+
+        .btn-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border);
+            color: #fff;
+            padding: 12px 10px;
+            border-radius: 14px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            font-size: 0.78rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            min-height: 42px;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active { transform: scale(0.95); background: rgba(255, 255, 255, 0.15); }
+        .btn.primary { background: linear-gradient(135deg, var(--accent-green), #00a381); border: none; color: #fff; box-shadow: 0 4px 20px rgba(0, 184, 148, 0.4); }
+        .btn.primary:active { background: linear-gradient(135deg, #00a381, #00b894); }
+
+        .btn.minecraft { background: linear-gradient(135deg, #2d6a4f, #40916c); border: none; }
+        .btn.textcraft { background: linear-gradient(135deg, #5a189a, #7b2cbf); border: none; }
+        .btn.ai-editor { background: linear-gradient(135deg, var(--accent), var(--accent-glow)); border: none; }
+        .btn.blockbench { background: linear-gradient(135deg, #4a90e2, #357abd); border: none; }
+
+        .btn-warning { background: linear-gradient(135deg, var(--accent-warning), #f6b93b); border: none; color: #1a1a2e; }
+        .btn-danger { background: linear-gradient(135deg, #e74c3c, #c0392b); border: none; }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .file-input-wrapper .btn {
+            width: 100%;
+            height: 100%;
+            min-height: 42px;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .layers-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 220px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+        }
+
+        .layer-item {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 10px;
+            border-radius: 12px;
+            border: 1px solid transparent;
+            font-size: 0.8rem;
+            gap: 8px;
+            min-height: 40px;
+            transition: all 0.2s;
+        }
+
+        .layer-item.active {
+            border-color: var(--accent);
+            background: rgba(59, 130, 246, 0.1);
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.1);
+        }
+
+        .layer-item .layer-info {
+            flex: 1;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .layer-item.active .layer-info { color: #fff; }
+
+        .layer-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 4px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .layer-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+        .layer-btn:active { transform: scale(0.9); }
+
+        .control-group {
+            margin-bottom: 6px;
+            padding: 8px 10px;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .control-group label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .control-group label span { color: var(--accent); font-weight: 700; }
+
+        .slider-reset {
+            background: none;
+            border: none;
+            color: var(--accent);
+            font-size: 0.6rem;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0 4px;
+            margin-left: 8px;
+        }
+        .slider-reset:hover { text-decoration: underline; }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            accent-color: var(--accent);
+            background: #1a1a2e;
+            height: 6px;
+            border-radius: 6px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #fff;
+            border-radius: 50%;
+            border: 3px solid var(--accent);
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(59, 130, 246, 0.4);
+        }
+
+        .control-group input[type="color"] {
+            width: 100%;
+            height: 34px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            background: transparent;
+            padding: 0;
+        }
+
+        .control-group input[type="text"],
+        .control-group select {
+            width: 100%;
+            padding: 8px 10px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border);
+            color: #fff;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            outline: none;
+            height: 36px;
+        }
+
+        .control-group input[type="text"]:focus,
+        .control-group select:focus { border-color: var(--accent); }
+
+        .control-group .btn-grid { margin-bottom: 0; gap: 6px; }
+
+        .control-group .btn { min-height: 34px; padding: 6px 8px; font-size: 0.7rem; border-radius: 10px; }
+
+        .reset-group { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+
+        .reset-group .btn { min-height: 32px; padding: 6px 6px; font-size: 0.65rem; }
+
+        .draggable {
+            position: absolute;
+            cursor: move;
+            user-select: none;
+            border: 1px dashed transparent;
+            display: inline-block;
+            touch-action: none;
+            transform-origin: center center;
+        }
+
+        .draggable.active:not(.locked) {
+            border: 2px solid var(--accent);
+            z-index: 999 !important;
+            border-radius: 4px;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+        }
+
+        .draggable.is-bg-layer {
+            width: 100% !important;
+            height: 100% !important;
+            left: 0 !important;
+            top: 0 !important;
+            transform: none !important;
+            border: none !important;
+        }
+
+        .draggable.hidden-layer { display: none !important; }
+        .draggable.locked { cursor: default !important; }
+
+        .resize-handle {
+            display: none;
+            position: absolute;
+            background: #fff;
+            border: 3px solid var(--accent);
+            z-index: 100;
+            border-radius: 50%;
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.5);
+            transition: transform 0.1s;
+        }
+
+        .draggable.active:not(.locked) .resize-handle { display: block; }
+        .resize-handle:active { transform: scale(0.8); }
+
+        .handle-both {
+            right: -10px;
+            bottom: -10px;
+            width: 28px;
+            height: 28px;
+            background: var(--accent);
+            border: 3px solid #fff;
+            cursor: nwse-resize;
+            border-radius: 50%;
+        }
+
+        .handle-both::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border-radius: 4px;
+        }
+
+        .handle-width {
+            right: -10px;
+            top: calc(50% - 13px);
+            width: 24px;
+            height: 24px;
+            background: #fff;
+            border: 3px solid var(--accent);
+            cursor: ew-resize;
+            border-radius: 50%;
+        }
+
+        .handle-height {
+            bottom: -10px;
+            left: calc(50% - 13px);
+            width: 24px;
+            height: 24px;
+            background: #fff;
+            border: 3px solid var(--accent);
+            cursor: ns-resize;
+            border-radius: 50%;
+        }
+
+        .handle-rot {
+            display: none;
+            position: absolute;
+            top: -36px;
+            left: calc(50% - 14px);
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--accent-warning), #f6b93b);
+            border: 3px solid #fff;
+            border-radius: 50%;
+            cursor: grab;
+            z-index: 100;
+            box-shadow: 0 4px 16px rgba(253, 203, 110, 0.5);
+        }
+
+        .handle-rot::after {
+            content: '↻';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 16px;
+            color: #1a1a2e;
+            font-weight: 900;
+        }
+
+        .handle-rot::before {
+            content: '';
+            position: absolute;
+            bottom: -18px;
+            left: calc(50% - 1px);
+            width: 2px;
+            height: 18px;
+            background: var(--accent-warning);
+        }
+
+        .draggable.active:not(.locked) .handle-rot { display: block; }
+
+        .object-content-box {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* Убрано overflow: hidden, чтобы свечение и тени выходили за рамки */
+        }
+
+        .object-text {
+            font-weight: 900;
+            color: #ffffff;
+            font-family: 'Impact', sans-serif;
+            text-transform: uppercase;
+            line-height: 1.2;
+            white-space: nowrap;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            text-align: center;
+            overflow: hidden;
+            word-break: break-word;
+        }
+
+        .object-img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            object-fit: contain;
+        }
+
+        .bg-inside-layer {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            pointer-events: none;
+        }
+
+        .download-btn-wrap {
+            padding: 10px 16px;
+            border-top: 1px solid var(--border);
+            background: rgba(0, 0, 0, 0.2);
+            flex-shrink: 0;
+        }
+
+        .download-btn-wrap .btn {
+            width: 100%;
+            font-size: 0.9rem;
+            padding: 14px;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0, 184, 148, 0.3);
+        }
+
+        @media (max-width: 480px) {
+            .project-name-input { width: 70px; font-size: 0.7rem; }
+            .format-btn { padding: 0 8px; font-size: 0.6rem; }
+            .icon-btn { width: 34px; height: 34px; font-size: 0.9rem; }
+            .burger-menu { width: 34px; height: 34px; }
+            .sidebar { --sidebar-height: 380px; min-height: 280px; max-height: 60dvh; }
+            .btn { font-size: 0.7rem; padding: 10px 8px; min-height: 38px; }
+            .reset-group .btn { font-size: 0.55rem; padding: 4px 2px; }
+        }
+
+        @media (max-width: 380px) {
+            .project-name-input { width: 55px; }
+            .format-btn { padding: 0 4px; font-size: 0.5rem; }
+            .icon-btn { width: 30px; height: 30px; font-size: 0.8rem; }
+            .burger-menu { width: 30px; height: 30px; }
+            .btn { font-size: 0.6rem; padding: 8px 4px; min-height: 32px; }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="top-bar">
+        <div class="top-bar-left">
+            <button class="icon-btn" onclick="undo()" id="btnUndo">↩</button>
+            <button class="icon-btn" onclick="redo()" id="btnRedo">↻</button>
+            <input type="text" id="projectNameInput" class="project-name-input" value="project" placeholder="Проект">
+            <div class="format-toggle">
+                <button class="format-btn" data-format="portrait" onclick="setFormat('portrait')">9:16</button>
+                <button class="format-btn active" data-format="landscape" onclick="setFormat('landscape')">16:9</button>
+            </div>
+        </div>
+        
+        <div style="display:flex; align-items:center; gap:8px;">
+            <div class="burger-menu" onclick="toggleDropdown()">
+                <div class="burger-line"></div>
+                <div class="burger-line"></div>
+                <div class="burger-line"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dropdown-menu hidden" id="dropdownMenu">
+        <div class="menu-item" onclick="exportProjectJSON()">💾 Сохранить</div>
+        <div class="menu-item" onclick="document.getElementById('fileImport').click()">📂 Открыть</div>
+        <div class="menu-item danger" onclick="resetProject()">🗑️ Сбросить всё</div>
+        <input type="file" id="fileImport" accept=".json" style="display:none;" onchange="importProjectJSON(this)">
+    </div>
+
+    <div class="main-container">
+        <div class="workspace" id="workspace">
+            <div class="canvas-container" id="canvasScaleContainer">
+                <div class="canvas-wrapper" id="canvasWrapper">
+                    <div class="canvas" id="canvas"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-tab-handle" id="dragHandle"></div>
+            <div class="sidebar-tabs">
+                <button class="sidebar-tab active" data-tab="tools" onclick="switchTab('tools')">🛠 Элементы</button>
+                <button class="sidebar-tab" data-tab="layers" onclick="switchTab('layers')">📋 Слои</button>
+                <button class="sidebar-tab" data-tab="settings" onclick="switchTab('settings')">⚙️ Настройки</button>
+            </div>
+            
+            <div class="sidebar-content" id="tab-tools">
+                <div class="panel-section">
+                    <div class="btn-grid">
+                        <button class="btn" onclick="addNewObject('text')">➕ Текст</button>
+                        <div class="file-input-wrapper">
+                            <button class="btn">🖼 Картинка</button>
+                            <input type="file" accept="image/*" onchange="uploadImageLayer(this, false)">
+                        </div>
+                    </div>
+                    <div class="btn-grid">
+                        <div class="file-input-wrapper">
+                            <button class="btn" style="background:rgba(255,255,255,0.06);">🌄 Задний Фон</button>
+                            <input type="file" accept="image/*" onchange="uploadImageLayer(this, true)">
+                        </div>
+                        <a href="https://clipdrop.co/" target="_blank" class="btn ai-editor">✨ Редактор ИИ</a>
+                    </div>
+                    <div class="btn-grid">
+                        <a href="https://mcskins.top/avatar-maker" target="_blank" class="btn minecraft">🎮 Аватар MC</a>
+                        <a href="https://textcraft.net/" target="_blank" class="btn textcraft">🔮 Textcraft</a>
+                    </div>
+                    <div class="btn-grid">
+                        <a href="https://web.blockbench.net/" target="_blank" class="btn blockbench">🟦 Blockbench</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-content" id="tab-layers" style="display:none;">
+                <div class="layers-list" id="layersListContainer"></div>
+            </div>
+
+            <div class="sidebar-content" id="tab-settings" style="display:none;">
+                <div id="inspector" style="opacity:0.4; pointer-events:none;">
+                    <div class="control-group">
+                        <label>Название слоя</label>
+                        <input type="text" id="layerCustomName" oninput="updateLayerName(this.value)">
+                    </div>
+
+                    <!-- Блок трансформаций (для фона скрыт) -->
+                    <div id="generalTransformContent">
+                        <div class="control-group">
+                            <label>Общий масштаб: <span id="scaleVal">100%</span> <button class="slider-reset" onclick="resetSlider('scaleSlider')">СБРОС</button></label>
+                            <input type="range" id="scaleSlider" min="10" max="300" value="100" step="1" oninput="updateScaleProp(this.value)">
+                        </div>
+                        <div class="control-group">
+                            <label>Ширина: <span id="sizeWidthVal">100%</span> <button class="slider-reset" onclick="resetSlider('sizeWidth')">СБРОС</button></label>
+                            <input type="range" id="sizeWidth" min="10" max="300" value="100" step="1" oninput="updateWidthProp(this.value)">
+                        </div>
+                        <div class="control-group">
+                            <label>Высота: <span id="sizeHeightVal">100%</span> <button class="slider-reset" onclick="resetSlider('sizeHeight')">СБРОС</button></label>
+                            <input type="range" id="sizeHeight" min="10" max="300" value="100" step="1" oninput="updateHeightProp(this.value)">
+                        </div>
+                        <div class="control-group">
+                            <label>Поворот: <span id="menuRotateVal">0°</span> <button class="slider-reset" onclick="resetSlider('filterRotate')">СБРОС</button></label>
+                            <input type="range" id="filterRotate" min="-180" max="180" value="0" step="1" oninput="updateRotationValue(this.value)">
+                        </div>
+
+                        <div class="control-group">
+                            <label style="color:var(--accent-warning); font-weight:600;">🔄 Сброс</label>
+                            <div class="reset-group">
+                                <button class="btn btn-warning" onclick="resetRotation()">Поворот</button>
+                                <button class="btn btn-warning" onclick="resetScale()">Размер</button>
+                                <button class="btn btn-danger" onclick="resetAllTransform()">Всё</button>
+                            </div>
+                        </div>
+
+                        <div id="textEditGroup" style="display:none;">
+                            <div class="control-group">
+                                <label>Текст</label>
+                                <input type="text" id="objTextVal" oninput="updateTextProp('text', this.value)">
+                            </div>
+                            <div class="control-group">
+                                <label>Шрифт</label>
+                                <select id="objTextFont" onchange="updateTextProp('font', this.value)">
+                                    <option value="'Impact', sans-serif">Impact</option>
+                                    <option value="'Inter', sans-serif">Inter</option>
+                                    <option value="'Montserrat', sans-serif">Montserrat</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label>Цвет</label>
+                                <input type="color" id="objTextColor" onchange="updateTextProp('color', this.value)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Цветокоррекция (видна для всех слоёв, включая фон) -->
+                    <h3 style="color:var(--accent-green); font-size:0.75rem; margin:8px 0 6px; border-top:1px solid var(--border); padding-top:10px; letter-spacing:0.5px;">🎨 Цветокоррекция</h3>
+                    <div class="control-group">
+                        <label>Яркость: <span id="brightVal">100%</span> <button class="slider-reset" onclick="resetSlider('filterBright')">СБРОС</button></label>
+                        <input type="range" id="filterBright" min="30" max="200" value="100" oninput="updateFilterProp('bright', this.value)">
+                    </div>
+                    <div class="control-group">
+                        <label>Контраст: <span id="contrastVal">100%</span> <button class="slider-reset" onclick="resetSlider('filterContrast')">СБРОС</button></label>
+                        <input type="range" id="filterContrast" min="30" max="200" value="100" oninput="updateFilterProp('contrast', this.value)">
+                    </div>
+                    <div class="control-group">
+                        <label>Насыщенность: <span id="saturateVal">100%</span> <button class="slider-reset" onclick="resetSlider('filterSaturate')">СБРОС</button></label>
+                        <input type="range" id="filterSaturate" min="0" max="250" value="100" oninput="updateFilterProp('saturate', this.value)">
+                    </div>
+
+                    <!-- Новые фильтры -->
+                    <div class="control-group">
+                        <label>Текстура: <span id="textureVal">0</span> <button class="slider-reset" onclick="resetSlider('textureSlider')">СБРОС</button></label>
+                        <input type="range" id="textureSlider" min="-100" max="100" value="0" oninput="updateFilterProp('texture', this.value)">
+                    </div>
+                    <div class="control-group">
+                        <label>Чёткость: <span id="sharpnessVal">0</span> <button class="slider-reset" onclick="resetSlider('sharpnessSlider')">СБРОС</button></label>
+                        <input type="range" id="sharpnessSlider" min="-100" max="100" value="0" oninput="updateFilterProp('sharpness', this.value)">
+                    </div>
+                    <div class="control-group">
+                        <label>Удаление дымки: <span id="dehazeVal">0</span> <button class="slider-reset" onclick="resetSlider('dehazeSlider')">СБРОС</button></label>
+                        <input type="range" id="dehazeSlider" min="-100" max="100" value="0" oninput="updateFilterProp('dehaze', this.value)">
+                    </div>
+
+                    <!-- Эффекты (скрыты для фона) -->
+                    <div id="effectsBlock">
+                        <h3 style="color:#fdcb6e; font-size:0.75rem; margin:8px 0 6px; border-top:1px solid var(--border); padding-top:10px; letter-spacing:0.5px;">✨ Свечение</h3>
+                        <div class="control-group">
+                            <label>Цвет</label>
+                            <input type="color" id="glowColor" value="#ff6b6b" onchange="updateFilterProp('glowColor', this.value)">
+                        </div>
+                        <div class="control-group">
+                            <label>Размер: <span id="glowBlurVal">0px</span> <button class="slider-reset" onclick="resetSlider('glowBlur')">СБРОС</button></label>
+                            <input type="range" id="glowBlur" min="0" max="80" value="0" oninput="updateFilterProp('glowBlur', this.value)">
+                        </div>
+
+                        <h3 style="color:var(--text-secondary); font-size:0.75rem; margin:8px 0 6px; border-top:1px solid var(--border); padding-top:10px;">👥 Тень</h3>
+                        <div class="control-group">
+                            <label>Цвет</label>
+                            <input type="color" id="shadowColor" value="#000000" onchange="updateFilterProp('shadowColor', this.value)">
+                        </div>
+                        <div class="control-group">
+                            <label>Размытие: <span id="shadowBlurVal">0px</span> <button class="slider-reset" onclick="resetSlider('shadowBlur')">СБРОС</button></label>
+                            <input type="range" id="shadowBlur" min="0" max="50" value="0" oninput="updateFilterProp('shadowBlur', this.value)">
+                        </div>
+                        <div class="control-group">
+                            <label>Смещение X: <span id="shadowXVal">0px</span> <button class="slider-reset" onclick="resetSlider('shadowOffsetX')">СБРОС</button></label>
+                            <input type="range" id="shadowOffsetX" min="-40" max="40" value="0" oninput="updateFilterProp('shadowOffsetX', this.value)">
+                        </div>
+                        <div class="control-group">
+                            <label>Смещение Y: <span id="shadowYVal">0px</span> <button class="slider-reset" onclick="resetSlider('shadowOffsetY')">СБРОС</button></label>
+                            <input type="range" id="shadowOffsetY" min="-40" max="40" value="0" oninput="updateFilterProp('shadowOffsetY', this.value)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="download-btn-wrap">
+                <button class="btn primary" onclick="renderAndDownload()">📥 СКАЧАТЬ</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ---- ФОРМАТ ХОЛСТА ----
+        let canvasWidth = 405;
+        let canvasHeight = 720;
+        let renderWidth = 1080;
+        let renderHeight = 1920;
+        let currentFormat = 'landscape'; // по умолчанию 16:9
+
+        let objects = [];
+        let activeId = null;
+        let objectCounter = 0;
+        let scaleCoeff = 1;
+        let isShiftPressed = false;
+
+        let undoStack = [];
+        let redoStack = [];
+
+        // ---- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ----
+        function getObj(id) { return objects.find(o => o.id === id); }
+
+        function updateElementStyle(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const data = getObj(id);
+            if (!data || data.type === 'bg') return;
+            el.style.left = data.left + 'px';
+            el.style.top = data.top + 'px';
+            el.style.width = data.width + 'px';
+            el.style.height = data.height + 'px';
+            el.style.transform = `rotate(${data.rotate}deg)`;
+            // Обновляем текст
+            const txt = el.querySelector('.object-text');
+            if (txt && data.type === 'text') {
+                const fs = Math.min(data.height * 0.7, data.width * 0.3);
+                txt.style.fontSize = fs + 'px';
+                txt.style.color = data.color;
+                txt.style.fontFamily = data.font;
+                txt.innerText = data.text;
+            }
+        }
+
+        function updateInspectorValues() {
+            const curr = getObj(activeId);
+            if (!curr || curr.type === 'bg') return;
+            const wBase = curr._origWidth || curr.width;
+            const hBase = curr._origHeight || curr.height;
+            const wP = Math.round((curr.width / wBase) * 100);
+            const hP = Math.round((curr.height / hBase) * 100);
+            const sP = Math.round(((curr.width / wBase) + (curr.height / hBase)) / 2 * 100);
+            
+            document.getElementById('scaleSlider').value = sP;
+            document.getElementById('scaleVal').innerText = sP + '%';
+            document.getElementById('sizeWidth').value = wP;
+            document.getElementById('sizeHeight').value = hP;
+            document.getElementById('sizeWidthVal').innerText = wP + '%';
+            document.getElementById('sizeHeightVal').innerText = hP + '%';
+            document.getElementById('filterRotate').value = curr.rotate || 0;
+            document.getElementById('menuRotateVal').innerText = (curr.rotate || 0) + '°';
+        }
+
+        window.addEventListener('keydown', (e) => { if(e.key === 'Shift') isShiftPressed = true; });
+        window.addEventListener('keyup', (e) => { if(e.key === 'Shift') isShiftPressed = false; });
+
+        function saveState() {
+            const snapshot = JSON.stringify(objects);
+            if (undoStack.length === 0 || undoStack[undoStack.length - 1] !== snapshot) {
+                undoStack.push(snapshot);
+                redoStack = [];
+                updateHistoryButtons();
+            }
+        }
+
+        function undo() {
+            if (undoStack.length > 1) {
+                redoStack.push(undoStack.pop());
+                objects = JSON.parse(undoStack[undoStack.length - 1]);
+                rebuildCanvasHTML();
+                updateHistoryButtons();
+            }
+        }
+
+        function redo() {
+            if (redoStack.length > 0) {
+                const next = redoStack.pop();
+                undoStack.push(next);
+                objects = JSON.parse(next);
+                rebuildCanvasHTML();
+                updateHistoryButtons();
+            }
+        }
+
+        function updateHistoryButtons() {
+            document.getElementById('btnUndo').disabled = undoStack.length <= 1;
+            document.getElementById('btnRedo').disabled = redoStack.length === 0;
+        }
+
+        function toggleDropdown() {
+            document.getElementById('dropdownMenu').classList.toggle('hidden');
+        }
+
+        function exportProjectJSON() {
+            let nameInput = document.getElementById('projectNameInput').value.trim();
+            let exportFileDefaultName = (nameInput || 'project') + '.json';
+
+            const projectData = {
+                projectName: nameInput || 'project',
+                objects: objects,
+                objectCounter: objectCounter,
+                activeId: activeId,
+                themeColor: '#3b82f6',
+                format: currentFormat,
+                canvasWidth: canvasWidth,
+                canvasHeight: canvasHeight,
+                renderWidth: renderWidth,
+                renderHeight: renderHeight
+            };
+
+            const dataStr = JSON.stringify(projectData, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            toggleDropdown();
+        }
+
+        function importProjectJSON(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const parsed = JSON.parse(e.target.result);
+                        if (parsed.objects && Array.isArray(parsed.objects)) {
+                            objects = parsed.objects;
+                            objectCounter = parsed.objectCounter || objects.length;
+                            activeId = parsed.activeId || null;
+                            
+                            if (parsed.projectName) document.getElementById('projectNameInput').value = parsed.projectName;
+                            if (parsed.format) {
+                                setFormat(parsed.format, true);
+                            }
+                            saveState();
+                            rebuildCanvasHTML();
+                        } else { alert("Некорректный файл сохранения."); }
+                    } catch (err) { alert("Ошибка чтения файла JSON."); }
+                };
+                reader.readAsText(file);
+                input.value = ''; 
+            }
+            toggleDropdown();
+        }
+
+        function setFormat(format, silent = false) {
+            currentFormat = format;
+            if (format === 'portrait') {
+                canvasWidth = 405;
+                canvasHeight = 720;
+                renderWidth = 1080;
+                renderHeight = 1920;
+            } else {
+                canvasWidth = 720;
+                canvasHeight = 405;
+                renderWidth = 1920;
+                renderHeight = 1080;
+            }
+            
+            document.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.format-btn[data-format="${format}"]`).classList.add('active');
+            
+            document.documentElement.style.setProperty('--canvas-w', canvasWidth + 'px');
+            document.documentElement.style.setProperty('--canvas-h', canvasHeight + 'px');
+            
+            if (!silent) {
+                const oldW = 405, oldH = 720;
+                objects.forEach(obj => {
+                    if (obj.type === 'bg') return;
+                    obj.left = (obj.left / oldW) * canvasWidth;
+                    obj.top = (obj.top / oldH) * canvasHeight;
+                    obj.width = (obj.width / oldW) * canvasWidth;
+                    obj.height = (obj.height / oldH) * canvasHeight;
+                    if (obj._origWidth) obj._origWidth = (obj._origWidth / oldW) * canvasWidth;
+                    if (obj._origHeight) obj._origHeight = (obj._origHeight / oldH) * canvasHeight;
+                });
+            }
+            
+            autoScaleWorkspace();
+            rebuildCanvasHTML();
+            if (!silent) saveState();
+        }
+
+        function toggleLayerVisibility(id, e) {
+            e.stopPropagation();
+            const curr = getObj(id);
+            if(curr) { curr.hidden = !curr.hidden; rebuildCanvasHTML(); saveState(); }
+        }
+
+        function toggleLayerLock(id, e) {
+            e.stopPropagation();
+            const curr = getObj(id);
+            if(curr) { curr.locked = !curr.locked; rebuildCanvasHTML(); saveState(); }
+        }
+
+        function updateLayerName(newName) {
+            const curr = getObj(activeId);
+            if(curr) {
+                curr.name = newName || "Без названия";
+                const labelNode = document.querySelector(`.layer-item[data-id="${activeId}"] .layer-info`);
+                if(labelNode) labelNode.innerText = curr.name;
+            }
+        }
+
+        function moveLayerZIndex(direction, id) {
+            const targetId = id || activeId;
+            const index = objects.findIndex(o => o.id === targetId);
+            if(index === -1 || objects[index].type === 'bg') return;
+
+            if(direction === 'up' && index < objects.length - 1) {
+                let currentZ = objects[index].zIndex;
+                objects[index].zIndex = objects[index+1].zIndex;
+                objects[index+1].zIndex = currentZ;
+            } else if(direction === 'down' && index > 0) {
+                if (objects[index-1].type === 'bg') return; 
+                let currentZ = objects[index].zIndex;
+                objects[index].zIndex = objects[index-1].zIndex;
+                objects[index-1].zIndex = currentZ;
+            }
+            
+            objects.sort((a,b) => a.zIndex - b.zIndex);
+            rebuildCanvasHTML();
+            saveState();
+        }
+
+        function resetProject() {
+            if(confirm("Очистить холст и сбросить все слои?")) {
+                objects = [{ id: 'bg_core', type: 'bg', name: 'Задний фон', src: '', bright: 100, contrast: 100, saturate: 100, texture: 0, sharpness: 0, dehaze: 0, zIndex: 1, hidden: false, locked: false }];
+                activeId = null;
+                saveState();
+                rebuildCanvasHTML();
+            }
+            toggleDropdown();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                // Устанавливаем формат по умолчанию 16:9
+                setFormat('landscape', true);
+                autoScaleWorkspace();
+                window.addEventListener('resize', autoScaleWorkspace);
+                if (objects.length === 0) {
+                    objects.push({
+                        id: 'bg_core', type: 'bg', name: 'Задний фон', src: '',
+                        bright: 100, contrast: 100, saturate: 100, texture: 0, sharpness: 0, dehaze: 0, zIndex: 1, hidden: false, locked: false
+                    });
+                }
+                saveState();
+                rebuildCanvasHTML();
+                initSidebarDrag();
+            }, 50);
+        });
+
+        function autoScaleWorkspace() {
+            const workspace = document.getElementById('workspace');
+            const wrapper = document.getElementById('canvasWrapper');
+            
+            if (!workspace || !wrapper) return;
+            
+            const wsWidth = workspace.clientWidth;
+            const wsHeight = workspace.clientHeight;
+            
+            if (wsWidth === 0 || wsHeight === 0) return;
+            
+            const padding = 20;
+            const availWidth = wsWidth - padding;
+            const availHeight = wsHeight - padding;
+            
+            const scaleX = availWidth / canvasWidth;
+            const scaleY = availHeight / canvasHeight;
+            
+            let newScale = Math.min(scaleX, scaleY);
+            newScale = Math.max(newScale, 0.15);
+            newScale = Math.min(newScale, 2.0);
+            
+            scaleCoeff = newScale;
+            
+            wrapper.style.transform = `scale(${newScale})`;
+            wrapper.style.transformOrigin = 'center center';
+        }
+
+        function applyCSSFilters(node, curr) {
+            if(!node) return;
+            let filters = `brightness(${curr.bright}%) contrast(${curr.contrast}%) saturate(${curr.saturate}%)`;
+            
+            if (curr.texture) {
+                const t = parseInt(curr.texture) || 0;
+                filters += ` contrast(${100 + t}%) brightness(${100 + t * 0.5}%)`;
+            }
+            if (curr.sharpness) {
+                const s = parseInt(curr.sharpness) || 0;
+                filters += ` contrast(${100 + s}%)`;
+            }
+            if (curr.dehaze) {
+                const d = parseInt(curr.dehaze) || 0;
+                filters += ` contrast(${100 + d}%) saturate(${100 + d * 0.5}%) brightness(${100 + d * 0.3}%)`;
+            }
+
+            if(curr.type !== 'bg') {
+                if(parseInt(curr.glowBlur) > 0) filters += ` drop-shadow(0px 0px ${curr.glowBlur}px ${curr.glowColor})`;
+                if(parseInt(curr.shadowBlur) > 0 || parseInt(curr.shadowOffsetX) !== 0 || parseInt(curr.shadowOffsetY) !== 0) {
+                    filters += ` drop-shadow(${curr.shadowOffsetX}px ${curr.shadowOffsetY}px ${curr.shadowBlur}px ${curr.shadowColor})`;
+                }
+            }
+            node.style.filter = filters;
+        }
+
+        function rebuildCanvasHTML() {
+            const canvas = document.getElementById('canvas');
+            canvas.innerHTML = '';
+            const sorted = [...objects].sort((a, b) => a.zIndex - b.zIndex);
+
+            sorted.forEach(data => {
+                const div = document.createElement('div');
+                div.id = data.id;
+                div.className = 'draggable' + (data.type === 'bg' ? ' is-bg-layer' : '');
+                
+                if (activeId === data.id && data.type !== 'bg') {
+                    div.className += ' active';
+                }
+                if (data.hidden) div.className += ' hidden-layer';
+                if (data.locked) div.className += ' locked';
+
+                if (data.type !== 'bg') {
+                    div.style.left = data.left + 'px';
+                    div.style.top = data.top + 'px';
+                    div.style.width = data.width + 'px';
+                    div.style.height = data.height + 'px';
+                    div.style.transform = `rotate(${data.rotate}deg)`;
+                }
+                div.style.zIndex = data.zIndex;
+
+                let contentHtml = '';
+                if (data.type === 'text') {
+                    const fontSize = Math.min(data.height * 0.7, data.width * 0.3);
+                    contentHtml = `<div class="object-text" style="font-family:${data.font}; color:${data.color}; font-size:${fontSize}px;">${data.text}</div>`;
+                } else if (data.type === 'img') {
+                    contentHtml = `<img src="${data.src}" class="object-img">`;
+                } else if (data.type === 'bg') {
+                    contentHtml = data.src ? `<img src="${data.src}" class="bg-inside-layer">` : `<div class="bg-inside-layer" style="background:#111;"></div>`;
+                }
+
+                div.innerHTML = data.type === 'bg' ? `<div class="object-content-box">${contentHtml}</div>` : `
+                    <div class="handle-rot"></div>
+                    <div class="resize-handle handle-width"></div>
+                    <div class="resize-handle handle-height"></div>
+                    <div class="resize-handle handle-both"></div>
+                    <div class="object-content-box">${contentHtml}</div>
+                `;
+
+                canvas.appendChild(div);
+
+                const innerNode = div.querySelector('.object-img, .object-text, .bg-inside-layer');
+                applyCSSFilters(innerNode, data);
+
+                if (data.type !== 'bg') attachMouseInteractions(div, data);
+            });
+
+            rebuildLayersPanel();
+            updateInspectorUI();
+        }
+
+        // ---- НОВАЯ ЧИСТАЯ ЛОГИКА МЫШИ И ТАЧА ----
+        function attachMouseInteractions(div, data) {
+            if (data.locked) {
+                div.addEventListener('mousedown', () => { if(activeId !== data.id) { activeId = data.id; rebuildCanvasHTML(); } });
+                div.addEventListener('touchstart', () => { if(activeId !== data.id) { activeId = data.id; rebuildCanvasHTML(); } });
+                return;
+            }
+
+            const rotHandle = div.querySelector('.handle-rot');
+            const hWidth = div.querySelector('.handle-width');
+            const hHeight = div.querySelector('.handle-height');
+            const hBoth = div.querySelector('.handle-both');
+            const canvasNode = document.getElementById('canvas');
+            
+            let dragData = {};
+
+            function selectLayer(e) {
+                if(activeId !== data.id) { activeId = data.id; rebuildCanvasHTML(); }
+            }
+
+            // ---- ПЕРЕТАСКИВАНИЕ ----
+            div.addEventListener('mousedown', onDragStart);
+            div.addEventListener('touchstart', onDragStart, {passive: false});
+
+            function onDragStart(e) {
+                if (e.target.classList.contains('resize-handle') || e.target.classList.contains('handle-rot')) return;
+                e.preventDefault();
+                selectLayer(e);
+
+                const rect = canvasNode.getBoundingClientRect();
+                const point = e.touches ? e.touches[0] : e;
+                const scale = scaleCoeff;
+                
+                dragData = {
+                    startX: (point.clientX - rect.left) / scale,
+                    startY: (point.clientY - rect.top) / scale,
+                    origLeft: data.left,
+                    origTop: data.top,
+                    offsetX: 0,
+                    offsetY: 0,
+                    moved: false,
+                    scale: scale,
+                    rect: rect
+                };
+
+                const move = (ev) => {
+                    const p = ev.touches ? ev.touches[0] : ev;
+                    const currentX = (p.clientX - rect.left) / scale;
+                    const currentY = (p.clientY - rect.top) / scale;
+                    
+                    if (!dragData.moved) {
+                        const dx = currentX - dragData.startX;
+                        const dy = currentY - dragData.startY;
+                        if (Math.abs(dx) < 5 && Math.abs(dy) < 5) {
+                            return;
+                        }
+                        dragData.moved = true;
+                        dragData.offsetX = dragData.startX - data.left;
+                        dragData.offsetY = dragData.startY - data.top;
+                    }
+                    
+                    data.left = currentX - dragData.offsetX;
+                    data.top = currentY - dragData.offsetY;
+                    div.style.left = data.left + 'px';
+                    div.style.top = data.top + 'px';
+                };
+                const up = () => {
+                    window.removeEventListener('mousemove', move);
+                    window.removeEventListener('mouseup', up);
+                    window.removeEventListener('touchmove', move);
+                    window.removeEventListener('touchend', up);
+                    if (dragData.moved) saveState();
+                };
+                
+                window.addEventListener('mousemove', move);
+                window.addEventListener('mouseup', up);
+                window.addEventListener('touchmove', move, {passive: false});
+                window.addEventListener('touchend', up);
+            }
+
+            // ---- ПОВОРОТ ----
+            rotHandle.addEventListener('mousedown', onRotStart);
+            rotHandle.addEventListener('touchstart', onRotStart, {passive: false});
+
+            function onRotStart(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                selectLayer(e);
+
+                const rect = div.getBoundingClientRect();
+                const cx = rect.left + rect.width / 2;
+                const cy = rect.top + rect.height / 2;
+
+                const move = (ev) => {
+                    const p = ev.touches ? ev.touches[0] : ev;
+                    const rads = Math.atan2(p.clientX - cx, p.clientY - cy);
+                    let deg = Math.round(-rads * (180 / Math.PI) + 180);
+                    data.rotate = deg;
+                    div.style.transform = `rotate(${deg}deg)`;
+                    document.getElementById('menuRotateVal').innerText = deg + '°';
+                    document.getElementById('filterRotate').value = deg;
+                };
+                const up = () => {
+                    window.removeEventListener('mousemove', move);
+                    window.removeEventListener('mouseup', up);
+                    window.removeEventListener('touchmove', move);
+                    window.removeEventListener('touchend', up);
+                    saveState();
+                };
+                window.addEventListener('mousemove', move);
+                window.addEventListener('mouseup', up);
+                window.addEventListener('touchmove', move, {passive: false});
+                window.addEventListener('touchend', up);
+            }
+
+            // ---- ОБНОВЛЕНИЕ РАЗМЕРА НА ЭКРАНЕ ----
+            function updateDivSize() {
+                div.style.width = data.width + 'px';
+                div.style.height = data.height + 'px';
+                const txt = div.querySelector('.object-text');
+                if (txt && data.type === 'text') {
+                    txt.style.fontSize = Math.min(data.height * 0.7, data.width * 0.3) + 'px';
+                }
+                updateInspectorValues();
+            }
+
+            // ---- УГОЛОВЫЙ МАРКЕР (ПРОПОРЦИОНАЛЬНЫЙ) ----
+            hBoth.addEventListener('mousedown', onBothStart);
+            hBoth.addEventListener('touchstart', onBothStart, {passive: false});
+
+            function onBothStart(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                selectLayer(e);
+
+                const p = e.touches ? e.touches[0] : e;
+                const ratio = data.width / data.height;
+                const startX = p.clientX;
+                const startY = p.clientY;
+                const startW = data.width;
+                const startH = data.height;
+
+                const move = (ev) => {
+                    const pt = ev.touches ? ev.touches[0] : ev;
+                    const dx = (pt.clientX - startX) / scaleCoeff;
+                    const dy = (pt.clientY - startY) / scaleCoeff;
+                    const avg = (dx + dy) / 2;
+                    const newSize = Math.max(20, startW + avg);
+                    data.width = newSize;
+                    data.height = newSize / ratio;
+                    updateDivSize();
+                };
+                const up = () => {
+                    window.removeEventListener('mousemove', move);
+                    window.removeEventListener('mouseup', up);
+                    window.removeEventListener('touchmove', move);
+                    window.removeEventListener('touchend', up);
+                    saveState();
+                };
+                window.addEventListener('mousemove', move);
+                window.addEventListener('mouseup', up);
+                window.addEventListener('touchmove', move, {passive: false});
+                window.addEventListener('touchend', up);
+            }
+
+            // ---- ШИРИНА (ТОЛЬКО ШИРИНА) ----
+            hWidth.addEventListener('mousedown', onWidthStart);
+            hWidth.addEventListener('touchstart', onWidthStart, {passive: false});
+
+            function onWidthStart(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                selectLayer(e);
+
+                const p = e.touches ? e.touches[0] : e;
+                const startX = p.clientX;
+                const startW = data.width;
+
+                const move = (ev) => {
+                    const pt = ev.touches ? ev.touches[0] : ev;
+                    const dx = (pt.clientX - startX) / scaleCoeff;
+                    data.width = Math.max(20, startW + dx);
+                    updateDivSize();
+                };
+                const up = () => {
+                    window.removeEventListener('mousemove', move);
+                    window.removeEventListener('mouseup', up);
+                    window.removeEventListener('touchmove', move);
+                    window.removeEventListener('touchend', up);
+                    saveState();
+                };
+                window.addEventListener('mousemove', move);
+                window.addEventListener('mouseup', up);
+                window.addEventListener('touchmove', move, {passive: false});
+                window.addEventListener('touchend', up);
+            }
+
+            // ---- ВЫСОТА (ТОЛЬКО ВЫСОТА) ----
+            hHeight.addEventListener('mousedown', onHeightStart);
+            hHeight.addEventListener('touchstart', onHeightStart, {passive: false});
+
+            function onHeightStart(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                selectLayer(e);
+
+                const p = e.touches ? e.touches[0] : e;
+                const startY = p.clientY;
+                const startH = data.height;
+
+                const move = (ev) => {
+                    const pt = ev.touches ? ev.touches[0] : ev;
+                    const dy = (pt.clientY - startY) / scaleCoeff;
+                    data.height = Math.max(20, startH + dy);
+                    updateDivSize();
+                };
+                const up = () => {
+                    window.removeEventListener('mousemove', move);
+                    window.removeEventListener('mouseup', up);
+                    window.removeEventListener('touchmove', move);
+                    window.removeEventListener('touchend', up);
+                    saveState();
+                };
+                window.addEventListener('mousemove', move);
+                window.addEventListener('mouseup', up);
+                window.addEventListener('touchmove', move, {passive: false});
+                window.addEventListener('touchend', up);
+            }
+        }
+
+        // ---- ФУНКЦИИ СБРОСА ----
+        function resetRotation() {
+            const curr = getObj(activeId);
+            if (!curr || curr.type === 'bg' || curr.locked) return;
+            curr.rotate = 0;
+            document.getElementById('filterRotate').value = 0;
+            document.getElementById('menuRotateVal').innerText = '0°';
+            updateElementStyle(activeId);
+            saveState();
+        }
+
+        function resetScale() {
+            const curr = getObj(activeId);
+            if (!curr || curr.type === 'bg' || curr.locked) return;
+            if (curr._origWidth && curr._origHeight) {
+                curr.width = curr._origWidth;
+                curr.height = curr._origHeight;
+                updateElementStyle(activeId);
+                updateInspectorValues();
+                saveState();
+            }
+        }
+
+        function resetAllTransform() {
+            const curr = getObj(activeId);
+            if (!curr || curr.type === 'bg' || curr.locked) return;
+            curr.rotate = 0;
+            curr.bright = 100;
+            curr.contrast = 100;
+            curr.saturate = 100;
+            curr.texture = 0;
+            curr.sharpness = 0;
+            curr.dehaze = 0;
+            curr.glowBlur = 0;
+            curr.shadowBlur = 0;
+            curr.shadowOffsetX = 0;
+            curr.shadowOffsetY = 0;
+            if (curr._origWidth && curr._origHeight) {
+                curr.width = curr._origWidth;
+                curr.height = curr._origHeight;
+            }
+            document.getElementById('filterRotate').value = 0;
+            document.getElementById('menuRotateVal').innerText = '0°';
+            updateElementStyle(activeId);
+            updateInspectorValues();
+            const el = document.getElementById(activeId);
+            if(el) {
+                const inner = el.querySelector('.object-img, .object-text, .bg-inside-layer');
+                applyCSSFilters(inner, curr);
+            }
+            saveState();
+        }
+
+        // ---- УПРАВЛЕНИЕ РАЗМЕРОМ ИЗ НАСТРОЕК ----
+        function updateScaleProp(val) {
+            const curr = getObj(activeId);
+            if (!curr || curr.type === 'bg' || curr.locked) return;
+            const p = parseInt(val) / 100;
+            const bw = curr._origWidth || curr.width;
+            const bh = curr._origHeight || curr.height;
+            curr.width = Math.max(20, bw * p);
+            curr.height = Math.max(20, bh * p);
+            document.getElementById('scaleVal').innerText = val + '%';
+            updateElementStyle(activeId);
+            saveState();
+        }
+
+        function updateWidthProp(val) {
+            const curr = getObj(activeId);
+            if (!curr || curr.type === 'bg' || curr.locked) return;
+            const p = parseInt(val) / 100;
+            const bw = curr._origWidth || curr.width;
+            curr.width = Math.max(20, bw * p);
+            document.getElementById('sizeWidthVal').innerText = val + '%';
+            updateElementStyle(activeId);
+            saveState();
+        }
+
+        function updateHeightProp(val) {
+            const curr = getObj(activeId);
+            if (!curr || curr.type === 'bg' || curr.locked) return;
+            const p = parseInt(val) / 100;
+            const bh = curr._origHeight || curr.height;
+            curr.height = Math.max(20, bh * p);
+            document.getElementById('sizeHeightVal').innerText = val + '%';
+            updateElementStyle(activeId);
+            saveState();
+        }
+
+        function updateRotationValue(val) {
+            const curr = getObj(activeId);
+            if (!curr || curr.type === 'bg' || curr.locked) return;
+            curr.rotate = parseInt(val);
+            document.getElementById('menuRotateVal').innerText = val + '°';
+            const el = document.getElementById(activeId);
+            if (el) el.style.transform = `rotate(${val}deg)`;
+            saveState();
+        }
+
+        function updateFilterProp(prop, val) {
+            const curr = getObj(activeId);
+            if (!curr || curr.locked) return;
+            curr[prop] = val;
+            
+            if(prop === 'bright') document.getElementById('brightVal').innerText = val + '%';
+            if(prop === 'contrast') document.getElementById('contrastVal').innerText = val + '%';
+            if(prop === 'saturate') document.getElementById('saturateVal').innerText = val + '%';
+            if(prop === 'texture') document.getElementById('textureVal').innerText = val;
+            if(prop === 'sharpness') document.getElementById('sharpnessVal').innerText = val;
+            if(prop === 'dehaze') document.getElementById('dehazeVal').innerText = val;
+            if(prop === 'glowBlur') document.getElementById('glowBlurVal').innerText = val + 'px';
+            if(prop === 'shadowBlur') document.getElementById('shadowBlurVal').innerText = val + 'px';
+            if(prop === 'shadowOffsetX') document.getElementById('shadowXVal').innerText = val + 'px';
+            if(prop === 'shadowOffsetY') document.getElementById('shadowYVal').innerText = val + 'px';
+            
+            const el = document.getElementById(activeId);
+            if(el) {
+                const inner = el.querySelector('.object-img, .object-text, .bg-inside-layer');
+                applyCSSFilters(inner, curr);
+            }
+            saveState();
+        }
+
+        // функция сброса отдельного слайдера
+        function resetSlider(id) {
+            const curr = getObj(activeId);
+            if (!curr || curr.locked) return;
+            // Для фона трансформации недоступны
+            if (curr.type === 'bg' && (id === 'scaleSlider' || id === 'sizeWidth' || id === 'sizeHeight' || id === 'filterRotate')) return;
+
+            switch(id) {
+                case 'filterBright': curr.bright = 100; break;
+                case 'filterContrast': curr.contrast = 100; break;
+                case 'filterSaturate': curr.saturate = 100; break;
+                case 'textureSlider': curr.texture = 0; break;
+                case 'sharpnessSlider': curr.sharpness = 0; break;
+                case 'dehazeSlider': curr.dehaze = 0; break;
+                case 'glowBlur': curr.glowBlur = 0; break;
+                case 'shadowBlur': curr.shadowBlur = 0; break;
+                case 'shadowOffsetX': curr.shadowOffsetX = 0; break;
+                case 'shadowOffsetY': curr.shadowOffsetY = 0; break;
+                case 'scaleSlider': {
+                    if (curr._origWidth && curr._origHeight) {
+                        curr.width = curr._origWidth;
+                        curr.height = curr._origHeight;
+                    }
+                    break;
+                }
+                case 'sizeWidth': {
+                    if (curr._origWidth) curr.width = curr._origWidth;
+                    break;
+                }
+                case 'sizeHeight': {
+                    if (curr._origHeight) curr.height = curr._origHeight;
+                    break;
+                }
+                case 'filterRotate': curr.rotate = 0; break;
+                default: return;
+            }
+            // Обновляем интерфейс
+            updateInspectorValues();
+            updateInspectorUI();
+            // Обновляем элемент
+            updateElementStyle(activeId);
+            const el = document.getElementById(activeId);
+            if (el) {
+                const inner = el.querySelector('.object-img, .object-text, .bg-inside-layer');
+                applyCSSFilters(inner, curr);
+            }
+            saveState();
+        }
+
+        function updateTextProp(prop, val) {
+            const curr = getObj(activeId);
+            if (!curr || curr.type !== 'text' || curr.locked) return;
+            curr[prop] = val;
+            const el = document.getElementById(activeId);
+            if(el) {
+                const txt = el.querySelector('.object-text');
+                if(txt) {
+                    if(prop === 'text') txt.innerText = val;
+                    if(prop === 'color') txt.style.color = val;
+                    if(prop === 'font') txt.style.fontFamily = val;
+                }
+            }
+            saveState();
+        }
+
+        function updateInspectorUI() {
+            const curr = getObj(activeId);
+            const insp = document.getElementById('inspector');
+            if (!curr) { insp.style.opacity = "0.4"; insp.style.pointerEvents = "none"; return; }
+
+            insp.style.opacity = curr.locked ? "0.4" : "1";
+            insp.style.pointerEvents = curr.locked ? "none" : "auto";
+            
+            document.getElementById('layerCustomName').value = curr.name || '';
+            document.getElementById('filterBright').value = curr.bright || 100;
+            document.getElementById('brightVal').innerText = (curr.bright || 100) + '%';
+            document.getElementById('filterContrast').value = curr.contrast || 100;
+            document.getElementById('contrastVal').innerText = (curr.contrast || 100) + '%';
+            document.getElementById('filterSaturate').value = curr.saturate || 100;
+            document.getElementById('saturateVal').innerText = (curr.saturate || 100) + '%';
+            document.getElementById('textureSlider').value = curr.texture || 0;
+            document.getElementById('textureVal').innerText = curr.texture || 0;
+            document.getElementById('sharpnessSlider').value = curr.sharpness || 0;
+            document.getElementById('sharpnessVal').innerText = curr.sharpness || 0;
+            document.getElementById('dehazeSlider').value = curr.dehaze || 0;
+            document.getElementById('dehazeVal').innerText = curr.dehaze || 0;
+            
+            updateInspectorValues();
+            
+            const isBg = curr.type === 'bg';
+            document.getElementById('generalTransformContent').style.display = isBg ? 'none' : 'block';
+            document.getElementById('effectsBlock').style.display = isBg ? 'none' : 'block';
+            document.getElementById('textEditGroup').style.display = curr.type === 'text' ? 'block' : 'none';
+
+            if (!isBg) {
+                document.getElementById('glowColor').value = curr.glowColor || '#ff6b6b';
+                document.getElementById('glowBlur').value = curr.glowBlur || 0;
+                document.getElementById('glowBlurVal').innerText = (curr.glowBlur || 0) + 'px';
+                
+                document.getElementById('shadowColor').value = curr.shadowColor || '#000000';
+                document.getElementById('shadowBlur').value = curr.shadowBlur || 0;
+                document.getElementById('shadowBlurVal').innerText = (curr.shadowBlur || 0) + 'px';
+                document.getElementById('shadowOffsetX').value = curr.shadowOffsetX || 0;
+                document.getElementById('shadowXVal').innerText = (curr.shadowOffsetX || 0) + 'px';
+                document.getElementById('shadowOffsetY').value = curr.shadowOffsetY || 0;
+                document.getElementById('shadowYVal').innerText = (curr.shadowOffsetY || 0) + 'px';
+            }
+            if (curr.type === 'text') {
+                document.getElementById('objTextVal').value = curr.text;
+                document.getElementById('objTextColor').value = curr.color;
+                document.getElementById('objTextFont').value = curr.font;
+            }
+        }
+
+        function rebuildLayersPanel() {
+            const container = document.getElementById('layersListContainer');
+            container.innerHTML = '';
+            const sortedForLayers = [...objects].sort((a, b) => b.zIndex - a.zIndex);
+
+            sortedForLayers.forEach(obj => {
+                const item = document.createElement('div');
+                item.className = 'layer-item' + (activeId === obj.id ? ' active' : '');
+                item.setAttribute('data-id', obj.id);
+                
+                const eyeIcon = obj.hidden ? '👁️‍🗨️' : '👁️';
+                const lockIcon = obj.locked ? '🔒' : '🔓';
+
+                item.innerHTML = `
+                    <button class="layer-btn" onclick="toggleLayerVisibility('${obj.id}', event)" title="Скрыть/Показать">${eyeIcon}</button>
+                    <button class="layer-btn" onclick="toggleLayerLock('${obj.id}', event)" title="Заблокировать">${lockIcon}</button>
+                    <div class="layer-info" onclick="activeId='${obj.id}'; rebuildCanvasHTML();">${obj.name}</div>
+                    ${obj.type !== 'bg' ? `
+                        <button class="layer-btn" onclick="moveLayerZIndex('up', '${obj.id}')" title="Выше">↑</button>
+                        <button class="layer-btn" onclick="moveLayerZIndex('down', '${obj.id}')" title="Ниже">↓</button>
+                        <button style="background:none; border:none; color:#ff6b6b; cursor:pointer; font-size:0.9rem; padding:2px;" onclick="deleteLayer('${obj.id}')">✕</button>
+                    ` : ''}
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function deleteLayer(id) {
+            objects = objects.filter(o => o.id !== id);
+            if (activeId === id) activeId = null;
+            saveState(); rebuildCanvasHTML();
+        }
+
+        function addNewObject(type) {
+            objectCounter++;
+            const maxZ = objects.length > 0 ? Math.max(...objects.map(o => o.zIndex)) : 1;
+            
+            let name = type === 'text' ? 'Текст ' + objectCounter : 'Картинка ' + objectCounter;
+            const defaultW = type === 'text' ? Math.min(200, canvasWidth * 0.5) : Math.min(150, canvasWidth * 0.4);
+            const defaultH = type === 'text' ? Math.min(60, canvasHeight * 0.1) : Math.min(120, canvasHeight * 0.2);
+
+            const newObj = {
+                id: 'obj_' + objectCounter, type: type, name: name,
+                left: canvasWidth * 0.2, top: canvasHeight * 0.3, 
+                width: defaultW, height: defaultH,
+                _origWidth: defaultW, _origHeight: defaultH,
+                rotate: 0, zIndex: maxZ + 1, hidden: false, locked: false,
+                bright: 100, contrast: 100, saturate: 100,
+                texture: 0, sharpness: 0, dehaze: 0,
+                glowColor: '#ff6b6b', glowBlur: 0, 
+                shadowColor: '#000000', shadowBlur: 0, shadowOffsetX: 0, shadowOffsetY: 0,
+                text: 'ТЕКСТ', color: '#ffffff', font: "'Impact', sans-serif"
+            };
+            
+            objects.push(newObj); activeId = newObj.id;
+            saveState(); rebuildCanvasHTML();
+        }
+
+        function uploadImageLayer(input, isBg) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (isBg) {
+                        const bg = objects.find(o => o.type === 'bg');
+                        bg.src = e.target.result;
+                        activeId = bg.id;
+                        saveState(); rebuildCanvasHTML();
+                    } else {
+                        const img = new Image();
+                        img.onload = function() {
+                            let origW = img.width, origH = img.height;
+                            let maxW = canvasWidth * 0.4;
+                            if (origW > maxW) { origH = origH * (maxW / origW); origW = maxW; }
+                            
+                            objectCounter++;
+                            const maxZ = objects.length > 0 ? Math.max(...objects.map(o => o.zIndex)) : 1;
+                            const newImg = {
+                                id: 'obj_' + objectCounter, type: 'img', name: 'Картинка ' + objectCounter,
+                                left: canvasWidth * 0.25, top: canvasHeight * 0.25, 
+                                width: origW, height: origH,
+                                _origWidth: origW, _origHeight: origH,
+                                rotate: 0, zIndex: maxZ + 1, hidden: false, locked: false,
+                                bright: 100, contrast: 100, saturate: 100,
+                                texture: 0, sharpness: 0, dehaze: 0,
+                                glowColor: '#ff6b6b', glowBlur: 0,
+                                shadowColor: '#000000', shadowBlur: 0, shadowOffsetX: 0, shadowOffsetY: 0,
+                                src: e.target.result
+                            };
+                            objects.push(newImg); activeId = newImg.id;
+                            saveState(); rebuildCanvasHTML();
+                        };
+                        img.src = e.target.result;
+                    }
+                };
+                reader.readAsDataURL(input.files[0]);
+                input.value = '';
+            }
+        }
+
+        // ---- ЭКСПОРТ ----
+        function renderAndDownload() {
+            activeId = null; 
+            rebuildCanvasHTML();
+
+            const renderCanvas = document.createElement('canvas');
+            renderCanvas.width = renderWidth; 
+            renderCanvas.height = renderHeight;
+            const ctx = renderCanvas.getContext('2d');
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+
+            const sorted = [...objects].sort((a, b) => a.zIndex - b.zIndex);
+            let loadedCount = 0;
+
+            function drawAllLayers() {
+                const scaleX = renderWidth / canvasWidth;
+                const scaleY = renderHeight / canvasHeight;
+
+                sorted.forEach(data => {
+                    if (data.hidden) return;
+                    ctx.save();
+
+                    if (data.type !== 'bg') {
+                        const cx = (data.left + data.width / 2) * scaleX;
+                        const cy = (data.top + data.height / 2) * scaleY;
+                        ctx.translate(cx, cy);
+                        ctx.rotate((data.rotate * Math.PI) / 180);
+                        ctx.translate(-cx, -cy);
+                    }
+
+                    let filterStr = `brightness(${data.bright}%) contrast(${data.contrast}%) saturate(${data.saturate}%)`;
+                    if (data.texture) {
+                        const t = parseInt(data.texture) || 0;
+                        filterStr += ` contrast(${100 + t}%) brightness(${100 + t * 0.5}%)`;
+                    }
+                    if (data.sharpness) {
+                        const s = parseInt(data.sharpness) || 0;
+                        filterStr += ` contrast(${100 + s}%)`;
+                    }
+                    if (data.dehaze) {
+                        const d = parseInt(data.dehaze) || 0;
+                        filterStr += ` contrast(${100 + d}%) saturate(${100 + d * 0.5}%) brightness(${100 + d * 0.3}%)`;
+                    }
+                    ctx.filter = filterStr;
+
+                    if (data.type !== 'bg' && (parseInt(data.shadowBlur) > 0 || parseInt(data.shadowOffsetX) !== 0 || parseInt(data.shadowOffsetY) !== 0)) {
+                        ctx.shadowColor = data.shadowColor;
+                        ctx.shadowBlur = data.shadowBlur * scaleX;
+                        ctx.shadowOffsetX = data.shadowOffsetX * scaleX;
+                        ctx.shadowOffsetY = data.shadowOffsetY * scaleY;
+                    }
+
+                    function drawCore() {
+                        if (data.type === 'bg' && data.imgNode) {
+                            ctx.drawImage(data.imgNode, 0, 0, renderWidth, renderHeight);
+                        } else if (data.type === 'bg') {
+                            ctx.fillStyle = '#111';
+                            ctx.fillRect(0, 0, renderWidth, renderHeight);
+                        } else if (data.type === 'img' && data.imgNode) {
+                            ctx.drawImage(data.imgNode, data.left * scaleX, data.top * scaleY, data.width * scaleX, data.height * scaleY);
+                        } else if (data.type === 'text') {
+                            const fs = Math.min(data.height * scaleY * 0.7, data.width * scaleX * 0.3);
+                            ctx.font = `900 ${fs}px ${data.font}`;
+                            ctx.fillStyle = data.color;
+                            ctx.textBaseline = 'middle';
+                            ctx.textAlign = 'center';
+                            ctx.fillText(data.text, (data.left + data.width / 2) * scaleX, (data.top + data.height / 2) * scaleY);
+                        }
+                    }
+
+                    drawCore();
+
+                    if (data.type !== 'bg' && parseInt(data.glowBlur) > 0) {
+                        ctx.shadowColor = data.glowColor;
+                        ctx.shadowBlur = data.glowBlur * scaleX;
+                        ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
+                        drawCore();
+                    }
+
+                    ctx.restore();
+                });
+
+                let nameInput = document.getElementById('projectNameInput').value.trim() || 'project';
+                const link = document.createElement('a');
+                link.download = nameInput + '.png';
+                link.href = renderCanvas.toDataURL('image/png', 1.0);
+                link.click();
+            }
+
+            const layersToLoad = sorted.filter(o => ((o.type === 'img' || o.type === 'bg') && o.src && !o.hidden));
+            if (layersToLoad.length === 0) { drawAllLayers(); return; }
+
+            layersToLoad.forEach(layer => {
+                const img = new Image();
+                img.crossOrigin = "anonymous";
+                img.onload = () => { layer.imgNode = img; loadedCount++; if (loadedCount === layersToLoad.length) drawAllLayers(); };
+                img.src = layer.src;
+            });
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.sidebar-tab[data-tab="${tabName}"]`).classList.add('active');
+            
+            document.getElementById('tab-tools').style.display = tabName === 'tools' ? 'block' : 'none';
+            document.getElementById('tab-layers').style.display = tabName === 'layers' ? 'block' : 'none';
+            document.getElementById('tab-settings').style.display = tabName === 'settings' ? 'block' : 'none';
+        }
+
+        function initSidebarDrag() {
+            const sidebar = document.getElementById('sidebar');
+            const dragHandle = document.getElementById('dragHandle');
+            let startY = 0, startHeight = 0, isDragging = false;
+
+            dragHandle.addEventListener('touchstart', (e) => {
+                startY = e.touches[0].clientY;
+                startHeight = sidebar.offsetHeight;
+                isDragging = true;
+                sidebar.style.transition = 'none';
+            });
+
+            dragHandle.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                e.preventDefault();
+                const deltaY = e.touches[0].clientY - startY;
+                const newHeight = Math.min(550, Math.max(320, startHeight - deltaY));
+                sidebar.style.height = newHeight + 'px';
+                document.documentElement.style.setProperty('--sidebar-height', newHeight + 'px');
+                setTimeout(autoScaleWorkspace, 10);
+            });
+
+            dragHandle.addEventListener('touchend', () => {
+                isDragging = false;
+                sidebar.style.transition = 'transform 0.3s ease';
+                setTimeout(autoScaleWorkspace, 50);
+            });
+        }
+
+        window.addEventListener('resize', () => setTimeout(autoScaleWorkspace, 50));
+    </script>
+</body>
+</html>
