@@ -716,6 +716,12 @@
             box-shadow: 0 6px 20px rgba(0, 184, 148, 0.3);
         }
 
+        /* Безопасная зона для настроек - сдвиг вправо и отступ справа */
+        #tab-settings {
+            padding-left: 12px;
+            padding-right: 32px; /* безопасная зона справа */
+        }
+
         @media (max-width: 480px) {
             .project-name-input { width: 70px; font-size: 0.7rem; }
             .format-btn { padding: 0 8px; font-size: 0.6rem; }
@@ -762,7 +768,7 @@
         <div class="menu-item" onclick="exportProjectJSON()">💾 Сохранить</div>
         <div class="menu-item" onclick="document.getElementById('fileImport').click()">📂 Открыть</div>
         <div class="menu-item danger" onclick="resetProject()">🗑️ Сбросить всё</div>
-        <input type="file" id="fileImport" accept=".json" style="display:none;" onchange="importProjectJSON(this)">
+        <input type="file" id="fileImport" accept="*/*" style="display:none;" onchange="importProjectJSON(this)">
     </div>
 
     <div class="main-container">
@@ -788,13 +794,13 @@
                         <button class="btn" onclick="addNewObject('text')">➕ Текст</button>
                         <div class="file-input-wrapper">
                             <button class="btn">🖼 Картинка</button>
-                            <input type="file" accept="image/*" onchange="uploadImageLayer(this, false)">
+                            <input type="file" accept="*/*" onchange="uploadImageLayer(this, false)">
                         </div>
                     </div>
                     <div class="btn-grid">
                         <div class="file-input-wrapper">
                             <button class="btn" style="background:rgba(255,255,255,0.06);">🌄 Задний Фон</button>
-                            <input type="file" accept="image/*" onchange="uploadImageLayer(this, true)">
+                            <input type="file" accept="*/*" onchange="uploadImageLayer(this, true)">
                         </div>
                         <a href="https://clipdrop.co/" target="_blank" class="btn ai-editor">✨ Редактор ИИ</a>
                     </div>
@@ -838,14 +844,7 @@
                             <input type="range" id="filterRotate" min="-180" max="180" value="0" step="1" oninput="updateRotationValue(this.value)">
                         </div>
 
-                        <div class="control-group">
-                            <label style="color:var(--accent-warning); font-weight:600;">🔄 Сброс</label>
-                            <div class="reset-group">
-                                <button class="btn btn-warning" onclick="resetRotation()">Поворот</button>
-                                <button class="btn btn-warning" onclick="resetScale()">Размер</button>
-                                <button class="btn btn-danger" onclick="resetAllTransform()">Всё</button>
-                            </div>
-                        </div>
+                        <!-- БЛОК СБРОСА УДАЛЁН -->
 
                         <div id="textEditGroup" style="display:none;">
                             <div class="control-group">
@@ -1181,7 +1180,6 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
-                // Устанавливаем формат по умолчанию 16:9
                 setFormat('landscape', true);
                 autoScaleWorkspace();
                 window.addEventListener('resize', autoScaleWorkspace);
@@ -1663,7 +1661,6 @@
         function resetSlider(id) {
             const curr = getObj(activeId);
             if (!curr || curr.locked) return;
-            // Для фона трансформации недоступны
             if (curr.type === 'bg' && (id === 'scaleSlider' || id === 'sizeWidth' || id === 'sizeHeight' || id === 'filterRotate')) return;
 
             switch(id) {
@@ -1695,10 +1692,8 @@
                 case 'filterRotate': curr.rotate = 0; break;
                 default: return;
             }
-            // Обновляем интерфейс
             updateInspectorValues();
             updateInspectorUI();
-            // Обновляем элемент
             updateElementStyle(activeId);
             const el = document.getElementById(activeId);
             if (el) {
@@ -1847,6 +1842,14 @@
                             let maxW = canvasWidth * 0.4;
                             if (origW > maxW) { origH = origH * (maxW / origW); origW = maxW; }
                             
+                            // Проверяем, есть ли уже объект с таким же src
+                            let existing = objects.find(o => o.type === 'img' && o.src === e.target.result);
+                            if (existing) {
+                                activeId = existing.id;
+                                saveState(); rebuildCanvasHTML();
+                                return;
+                            }
+
                             objectCounter++;
                             const maxZ = objects.length > 0 ? Math.max(...objects.map(o => o.zIndex)) : 1;
                             const newImg = {
@@ -1939,7 +1942,8 @@
                             ctx.fillStyle = data.color;
                             ctx.textBaseline = 'middle';
                             ctx.textAlign = 'center';
-                            ctx.fillText(data.text, (data.left + data.width / 2) * scaleX, (data.top + data.height / 2) * scaleY);
+                            // Верхний регистр для соответствия редактору
+                            ctx.fillText((data.text || '').toUpperCase(), (data.left + data.width / 2) * scaleX, (data.top + data.height / 2) * scaleY);
                         }
                     }
 
