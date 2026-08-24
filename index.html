@@ -716,12 +716,6 @@
             box-shadow: 0 6px 20px rgba(0, 184, 148, 0.3);
         }
 
-        /* Безопасная зона для настроек - сдвиг вправо и отступ справа */
-        #tab-settings {
-            padding-left: 12px;
-            padding-right: 32px; /* безопасная зона справа */
-        }
-
         @media (max-width: 480px) {
             .project-name-input { width: 70px; font-size: 0.7rem; }
             .format-btn { padding: 0 8px; font-size: 0.6rem; }
@@ -1786,6 +1780,7 @@
                     <button class="layer-btn" onclick="toggleLayerLock('${obj.id}', event)" title="Заблокировать">${lockIcon}</button>
                     <div class="layer-info" onclick="activeId='${obj.id}'; rebuildCanvasHTML();">${obj.name}</div>
                     ${obj.type !== 'bg' ? `
+                        <button class="layer-btn" onclick="duplicateLayer('${obj.id}')" title="Дублировать">⧉</button>
                         <button class="layer-btn" onclick="moveLayerZIndex('up', '${obj.id}')" title="Выше">↑</button>
                         <button class="layer-btn" onclick="moveLayerZIndex('down', '${obj.id}')" title="Ниже">↓</button>
                         <button style="background:none; border:none; color:#ff6b6b; cursor:pointer; font-size:0.9rem; padding:2px;" onclick="deleteLayer('${obj.id}')">✕</button>
@@ -1799,6 +1794,28 @@
             objects = objects.filter(o => o.id !== id);
             if (activeId === id) activeId = null;
             saveState(); rebuildCanvasHTML();
+        }
+
+        // Функция дублирования слоя
+        function duplicateLayer(id) {
+            const source = getObj(id);
+            if (!source || source.type === 'bg') return;
+            
+            objectCounter++;
+            const maxZ = Math.max(...objects.map(o => o.zIndex), 1) + 1;
+            
+            const copy = JSON.parse(JSON.stringify(source));
+            copy.id = 'obj_' + objectCounter;
+            copy.name = source.name + ' (копия)';
+            copy.left = source.left + 20; // сдвиг вправо
+            copy.top = source.top + 20;   // сдвиг вниз
+            copy.zIndex = maxZ;
+            
+            objects.push(copy);
+            activeId = copy.id;
+            
+            saveState();
+            rebuildCanvasHTML();
         }
 
         function addNewObject(type) {
@@ -1842,14 +1859,7 @@
                             let maxW = canvasWidth * 0.4;
                             if (origW > maxW) { origH = origH * (maxW / origW); origW = maxW; }
                             
-                            // Проверяем, есть ли уже объект с таким же src
-                            let existing = objects.find(o => o.type === 'img' && o.src === e.target.result);
-                            if (existing) {
-                                activeId = existing.id;
-                                saveState(); rebuildCanvasHTML();
-                                return;
-                            }
-
+                            // Всегда создаём новый объект, даже если картинка уже есть
                             objectCounter++;
                             const maxZ = objects.length > 0 ? Math.max(...objects.map(o => o.zIndex)) : 1;
                             const newImg = {
